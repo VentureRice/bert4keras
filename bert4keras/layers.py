@@ -618,6 +618,7 @@ class ConditionalRandomField(Layer):
     def __init__(self, lr_multiplier=1, gamma = 0.2, **kwargs):
         super(ConditionalRandomField, self).__init__(**kwargs)
         self.lr_multiplier = lr_multiplier  # 当前层学习率的放大倍数
+        self.gamma = gamma
 
     @integerize_shape
     def build(self, input_shape):
