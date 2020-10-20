@@ -705,7 +705,7 @@ class ConditionalRandomField(Layer):
         y_true = K.one_hot(y_true, K.shape(self.trans)[0])
         return self.dense_loss(y_true, y_pred)
 
-    def sparse_categorical_focal_loss(y_true, y_pred, gamma, *,
+    def sparse_categorical_focal_loss(self, y_true, y_pred, gamma, *,
                                   from_logits: bool = False, axis: int = -1
                                   ) -> tf.Tensor:
         r"""Focal loss function for multiclass classification with integer labels.
