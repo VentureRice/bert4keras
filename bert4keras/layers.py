@@ -709,7 +709,7 @@ class ConditionalRandomField(Layer):
         from_logits = False
         axis = -1
         _EPSILON = 10e-6
-        gamma = tf.convert_to_tensor(gamma, dtype=tf.dtypes.float32)
+        gamma = tf.convert_to_tensor(self.gamma, dtype=tf.dtypes.float32)
         gamma_rank = gamma.shape.rank
         scalar_gamma = gamma_rank == 0
 
