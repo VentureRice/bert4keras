@@ -615,7 +615,7 @@ class ConditionalRandomField(Layer):
     """纯Keras实现CRF层
     CRF层本质上是一个带训练参数的loss计算层。
     """
-    def __init__(self, lr_multiplier=1, **kwargs):
+    def __init__(self, lr_multiplier=1, gamma = 0.2, **kwargs):
         super(ConditionalRandomField, self).__init__(**kwargs)
         self.lr_multiplier = lr_multiplier  # 当前层学习率的放大倍数
 
@@ -705,12 +705,14 @@ class ConditionalRandomField(Layer):
         y_true = K.one_hot(y_true, K.shape(self.trans)[0])
         return self.dense_loss(y_true, y_pred)
 
-    def sparse_categorical_focal_loss(self, y_true, y_pred, gamma = 0.2, *,from_logits = False, axis = -1):
+    def sparse_categorical_focal_loss(self, y_true, y_pred):
+        from_logits = False
+        axis = -1
+        _EPSILON = 10e-6
         gamma = tf.convert_to_tensor(gamma, dtype=tf.dtypes.float32)
         gamma_rank = gamma.shape.rank
         scalar_gamma = gamma_rank == 0
-        _EPSILON = 10e-6
-        
+
         # Process prediction tensor
         y_pred = tf.convert_to_tensor(y_pred)
         y_pred_rank = y_pred.shape.rank
