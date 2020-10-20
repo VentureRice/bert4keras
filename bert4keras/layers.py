@@ -713,6 +713,8 @@ class ConditionalRandomField(Layer):
         gamma = tf.convert_to_tensor(self.gamma, dtype=tf.dtypes.float32)
         gamma_rank = gamma.shape.rank
         scalar_gamma = gamma_rank == 0
+        y_true = K.reshape(y_true, K.shape(y_pred)[:-1])
+        y_true = K.cast(y_true, 'int32')
 
         # Process prediction tensor
         y_pred = tf.convert_to_tensor(y_pred)
