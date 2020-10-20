@@ -705,85 +705,7 @@ class ConditionalRandomField(Layer):
         y_true = K.one_hot(y_true, K.shape(self.trans)[0])
         return self.dense_loss(y_true, y_pred)
 
-    def sparse_categorical_focal_loss(self, y_true, y_pred, gamma, *,
-                                  from_logits: bool = False, axis: int = -1
-                                  ) -> tf.Tensor:
-        r"""Focal loss function for multiclass classification with integer labels.
-        This loss function generalizes multiclass softmax cross-entropy by
-        introducing a hyperparameter called the *focusing parameter* that allows
-        hard-to-classify examples to be penalized more heavily relative to
-        easy-to-classify examples.
-        See :meth:`~focal_loss.binary_focal_loss` for a description of the focal
-        loss in the binary setting, as presented in the original work [1]_.
-        In the multiclass setting, with integer labels :math:`y`, focal loss is
-        defined as
-        .. math::
-            L(y, \hat{\mathbf{p}})
-            = -\left(1 - \hat{p}_y\right)^\gamma \log(\hat{p}_y)
-        where
-        *   :math:`y \in \{0, \ldots, K - 1\}` is an integer class label (:math:`K`
-            denotes the number of classes),
-        *   :math:`\hat{\mathbf{p}} = (\hat{p}_0, \ldots, \hat{p}_{K-1})
-            \in [0, 1]^K` is a vector representing an estimated probability
-            distribution over the :math:`K` classes,
-        *   :math:`\gamma` (gamma, not :math:`y`) is the *focusing parameter* that
-            specifies how much higher-confidence correct predictions contribute to
-            the overall loss (the higher the :math:`\gamma`, the higher the rate at
-            which easy-to-classify examples are down-weighted).
-        The usual multiclass softmax cross-entropy loss is recovered by setting
-        :math:`\gamma = 0`.
-        Parameters
-        ----------
-        y_true : tensor-like
-            Integer class labels.
-        y_pred : tensor-like
-            Either probabilities or logits, depending on the `from_logits`
-            parameter.
-        gamma : float or tensor-like of shape (K,)
-            The focusing parameter :math:`\gamma`. Higher values of `gamma` make
-            easy-to-classify examples contribute less to the loss relative to
-            hard-to-classify examples. Must be non-negative. This can be a
-            one-dimensional tensor, in which case it specifies a focusing parameter
-            for each class.
-        from_logits : bool, optional
-            Whether `y_pred` contains logits or probabilities.
-        axis : int, optional
-            Channel axis in the `y_pred` tensor.
-        Returns
-        -------
-        :class:`tf.Tensor`
-            The focal loss for each example.
-        Examples
-        --------
-        This function computes the per-example focal loss between a one-dimensional
-        integer label vector and a two-dimensional prediction matrix:
-        >>> import numpy as np
-        >>> from focal_loss import sparse_categorical_focal_loss
-        >>> y_true = [0, 1, 2]
-        >>> y_pred = [[0.8, 0.1, 0.1], [0.2, 0.7, 0.1], [0.2, 0.2, 0.6]]
-        >>> loss = sparse_categorical_focal_loss(y_true, y_pred, gamma=2)
-        >>> np.set_printoptions(precision=3)
-        >>> print(loss.numpy())
-        [0.009 0.032 0.082]
-        Warnings
-        --------
-        This function does not reduce its output to a scalar, so it cannot be passed
-        to :meth:`tf.keras.Model.compile` as a `loss` argument. Instead, use the
-        wrapper class :class:`~focal_loss.SparseCategoricalFocalLoss`.
-        References
-        ----------
-        .. [1] T. Lin, P. Goyal, R. Girshick, K. He and P. Dollár. Focal loss for
-            dense object detection. IEEE Transactions on Pattern Analysis and
-            Machine Intelligence, 2018.
-            (`DOI <https://doi.org/10.1109/TPAMI.2018.2858826>`__)
-            (`arXiv preprint <https://arxiv.org/abs/1708.02002>`__)
-        See Also
-        --------
-        :meth:`~focal_loss.SparseCategoricalFocalLoss`
-            A wrapper around this function that makes it a
-            :class:`tf.keras.losses.Loss`.
-        """
-        # Process focusing parameter
+    def sparse_categorical_focal_loss(self, y_true, y_pred, gamma = 0.2, *,from_logits = False, axis = -1):
         gamma = tf.convert_to_tensor(gamma, dtype=tf.dtypes.float32)
         gamma_rank = gamma.shape.rank
         scalar_gamma = gamma_rank == 0
@@ -841,10 +763,6 @@ class ConditionalRandomField(Layer):
             loss = tf.reshape(loss, y_pred_shape[:-1])
 
         return loss
-
-
-
-
 
     def dense_accuracy(self, y_true, y_pred):
         """训练过程中显示逐帧准确率的函数，排除了mask的影响
